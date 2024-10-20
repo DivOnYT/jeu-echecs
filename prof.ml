@@ -83,66 +83,6 @@ let showGrid grid =
 showGrid init_test;;
 
 
-let init () =
-  (* Initialisation des pièces pour chaque joueur sur le plateau *)
-  let plateau = Array.make_matrix 8 8 Vide in
-
-  (* Placement des pions *)
-  for i = 0 to 7 do
-    plateau.(1).(i) <- Pion (pionProp i 1);  (* Pions du joueur 2 *)
-    plateau.(6).(i) <- Pion (pionProp i 6);  (* Pions du joueur 1 *)
-  done;
-
-  (* Placement des tours *)
-  plateau.(0).(0) <- Tour (pionProp 0 0);
-  plateau.(0).(7) <- Tour (pionProp 7 0);
-  plateau.(7).(0) <- Tour (pionProp 0 7);
-  plateau.(7).(7) <- Tour (pionProp 7 7);
-
-  (* Placement des cavaliers *)
-  plateau.(0).(1) <- Cavalier (cavalierProp 1 0);
-  plateau.(0).(6) <- Cavalier (cavalierProp 6 0);
-  plateau.(7).(1) <- Cavalier (cavalierProp 1 7);
-  plateau.(7).(6) <- Cavalier (cavalierProp 6 7);
-
-  (* Placement des fous *)
-  plateau.(0).(2) <- Fou (pionProp 2 0);
-  plateau.(0).(5) <- Fou (pionProp 5 0);
-  plateau.(7).(2) <- Fou (pionProp 2 7);
-  plateau.(7).(5) <- Fou (pionProp 5 7);
-
-  (* Placement des reines *)
-  plateau.(0).(3) <- Reine (pionProp 3 0);
-  plateau.(7).(3) <- Reine (pionProp 3 7);
-
-  (* Placement des rois *)
-  plateau.(0).(4) <- Roi (roiProp 4 0);
-  plateau.(7).(4) <- Roi (roiProp 4 7);
-
-  (* Initialisation des pièces de chaque joueur *)
-  let joueur1Pieces = Array.init 16 (fun i ->
-    match i with
-    | 0 | 7 -> Tour (pionProp (i / 7 * 7) 7)  (* Tours aux coins *)
-    | 1 | 6 -> Cavalier (cavalierProp i 7)     (* Cavaliers à côté des tours *)
-    | 2 | 5 -> Fou (pionProp i 7)              (* Fous *)
-    | 3 -> Reine (pionProp 3 7)                (* Reine *)
-    | 4 -> Roi (roiProp 4 7)                   (* Roi *)
-    | _ -> Pion (pionProp (i - 8) 6)           (* Pions sur la 7ème rangée *)
-  ) in
-
-  let joueur2Pieces = Array.init 16 (fun i ->
-    match i with
-    | 0 | 7 -> Tour (pionProp (i / 7 * 7) 0)  (* Tours aux coins *)
-    | 1 | 6 -> Cavalier (cavalierProp i 0)     (* Cavaliers à côté des tours *)
-    | 2 | 5 -> Fou (pionProp i 0)              (* Fous *)
-    | 3 -> Reine (pionProp 3 0)                (* Reine *)
-    | 4 -> Roi (roiProp 4 0)                   (* Roi *)
-    | _ -> Pion (pionProp (i - 8) 1)           (* Pions sur la 2ème rangée *)
-  ) in
-
-  { joueur1 = []; joueur2 = []; joueur1Pieces; joueur2Pieces; plateau }
-
-
 (*
   Fonction qui initialise le tableau de jeu avec les éléments aux bons endroits
 *)
@@ -168,4 +108,3 @@ Fonction qui agit comme la boucle de jeu et qui donne l'action à chacun des jou
 (*
 Fonction qui récupère l'entrée positions xy du pion à déplacer
 *)
-
