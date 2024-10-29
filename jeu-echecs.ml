@@ -36,6 +36,67 @@ type plateau = {
   plateau : pion array array; (* Le plateau de jeu *)
 }
 
+(* Fonction de checkage pour le fou*)
+let rec diagonal_path_possible start_pos end_pos plateau = 
+  let (x1, y1) = start_pos in
+  let (x2, y2) = start_pos in
+  let dx = if x2>x1 then 1 else -1 in
+  let dy = if y2>y1 then 1 else -1 in
+  if x1=x2 && y1=y2 then true
+  else
+    let proch_X = x1 + dx in
+    let proch_Y = y1 + dy in
+    match plateau.(proch_X).(proch_Y), (proch_X, proch_Y) with
+      |Vide _, _ -> diagonal_path_possible (proch_X, proch_Y) end_pos plateau
+      |_, (x, y) when x = x2 && y = y2 -> true
+      |_ -> false
+
+
+(* fonction de checkage pour la dame : Horizontal, Vertical ou Diagonal*)
+let rec diagonal_horizontal_vertical_path_possible start_pos end_pos plateau = 
+  let (x1, y1) = start_pos in
+  let (x2, y2) = start_pos in
+  let dx = if x2=x1 then 0 else if x2>x1 then 1 else -1 in
+  let dy = if y2=y1 then 0 else if y2>y1 then 1 else -1 in
+  if x1=x2 && y1=y2 then true
+  else 
+    let proch_X = x1 + dx in
+    let proch_Y = y1 + dy in
+    match plateau.(proch_X).(proch_Y), (proch_X, proch_Y) with
+      |Vide _, _ -> diagonal_horizontal_vertical_path_possible (proch_X, proch_Y) end_pos plateau
+      |_, (x,y) when x = x2 && y = y2 -> true
+      |_ -> false
+
+(* Fonction pour le roi *)
+let all_moves1_path_possible start_pos end_pos = 
+  let (x1, y1) = start_pos in
+  let (x2, y2) = end_pos in
+  if ((x2-x1 <= 1 && x2-x1 >= 0)  || (x1-x2 <= 1 && x1-x2 >= 0)) then true else false
+
+(* Fonction pour le cavalier (vérification) *)
+let cavalier_path_possible start_pos end_pos =
+  let (x1, y1) = start_pos in
+  let (x2, y2) = end_pos in
+  let dx = abs (x2 - x1) in
+  let dy = abs (y2 - y1) in
+  (dx = 2 && dy = 1) || (dx = 1 && dy = 2)
+
+(*Fonction pour la Tour*)
+let rec horizontal_vertical_path_possible start_pos end_pos plateau =
+  let (x1, y1) = start_pos in
+  let (x2, y2) = end_pos in
+  let dx = if x2 = x1 then 0 else if x2 > x1 then 1 else -1 in
+  let dy = if y2 = y1 then 0 else if y2 > y1 then 1 else -1 in
+  if x1 = x2 && y1 = y2 then true
+  else
+    let proch_X = x1 + dx in
+    let proch_Y = y1 + dy in
+    match plateau.(proch_X).(proch_Y), (proch_X, proch_Y) with
+    | Vide, _ -> horizontal_vertical_path_possible (proch_X, proch_Y) end_pos plateau
+    | _, (x, y) when x = x2 && y = y2 -> true
+    | _ -> false
+
+
 (* On initialise les propriétés des différents pions du plateau *)
 let pionProp = fun x y -> {x=x;y=y;actions=[| (0,1,Infini);(0,2,PremierCoup) |]; played=0; player=Player1}
 let cavalierProp = fun x y -> {x=y;y=y;actions=[| (1,2, Infini);(-2,1,Infini);(2,-1,Infini);(-1,-2,Infini) |];played =0;player=Player1}
@@ -67,12 +128,12 @@ let showGrid grid =
       |_ -> for i = 0 to Array.length grid.plateau.(indx) -1 do
         match grid.plateau.(indx).(i) with
           |Pion _ -> print_string "♙  "; 
-          |Cavalier a->()
-          |Reine a -> ()
-          |Roi c -> ()
-          |Tour a -> ()
-          |Fou c -> ()
-          |Vide -> () ;
+          | Cavalier _ -> print_string"♘  "
+          | Reine _ -> print_string "♕  "
+          | Roi _ -> print_string "♔  "
+          | Tour _ -> print_string "♖  "
+          | Fou _ -> print_string "♗  "
+          | Vide -> print_string "·  "
 
       done;
       print_string "\n";

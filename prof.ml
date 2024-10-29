@@ -49,6 +49,8 @@ let init_test =
   {joueur1=[];joueur2=[];joueur1Pieces=[|Vide|];joueur2Pieces=[|Vide|];plateau=Array.make_matrix 8 8 (Pion {x=0;y=0;actions=[| (0,1,Infini);(0,2,PremierCoup) |]; played=0;player=Player1})}
 
 
+  
+
 (*
 Fonction 'efface' la console
 *)
@@ -57,6 +59,7 @@ let clear () =
     print_newline ();
   done;
 ;;
+
 (*
 Fonction qui affiche la grille des echecs dans le terminal
 *)
