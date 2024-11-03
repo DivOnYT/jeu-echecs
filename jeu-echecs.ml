@@ -287,10 +287,10 @@ let init () =
   { joueur1 = []; joueur2 = []; joueur1Pieces; joueur2Pieces; plateau }
 
 let lire_position () =
-  print_endline "Entrez la position de départ (x puis y) inversé :";
+  print_endline "Entrez la position de départ (y puis x) inversé :";
   let x1 = read_int () in
   let y1 = read_int () in
-  print_endline "Entrez la position d'arrivée (x puis y) :";
+  print_endline "Entrez la position d'arrivée (y puis x) :";
   let x2 = read_int () in
   let y2 = read_int () in
   ((x1, y1), (x2, y2))
@@ -343,48 +343,30 @@ let est_sous_attaque (plateau : pion array array) (x : int) (y : int) (adversair
 
 let est_echec_et_mat (plateau : plateau) (player : player) =
   if not (est_en_echec plateau.plateau player) then
-    false
+    false  (* Le joueur n'est pas en échec, donc pas de mat possible *)
   else
     let x, y = trouver_roi plateau.plateau player in
     let mouvements_roi_possibles =
       [ (1, 0); (-1, 0); (0, 1); (0, -1); (1, 1); (-1, -1); (1, -1); (-1, 1) ] in
 
-    (* Vérifie si le roi peut se déplacer sans être menacé *)
+    (* Vérifie si le roi peut se déplacer vers une case non attaquée *)
     let roi_peut_se_deplacer =
       List.exists (fun (dx, dy) ->
         let newX, newY = (x + dx, y + dy) in
-        (* Vérifie si la nouvelle position est dans les limites du plateau *)
         if newX >= 0 && newX < 8 && newY >= 0 && newY < 8 then
           try
-            (* Copie du plateau *)
-            let new_plateau = { plateau with plateau = Array.map Array.copy plateau.plateau } in
-            (* Déplacement du roi à la nouvelle position *)
-            new_plateau.plateau.(newX).(newY) <- new_plateau.plateau.(x).(y);
-            new_plateau.plateau.(x).(y) <- Vide;
-            
-            (* Vérifie si le roi est toujours en échec après ce mouvement *)
-            coup_valide plateau.plateau (x, y) (newX, newY) &&
-            not (est_en_echec new_plateau.plateau player) &&
-            (* Vérifie que la case n'est pas attaquée par une pièce adverse *)
-            not (est_sous_attaque new_plateau.plateau newX newY player)
+            (* Vérifie si le mouvement est possible pour le roi *)
+            all_moves1_path_possible (x, y) (newX, newY) &&
+            (* Vérifie que la case de destination n'est pas sous attaque *)
+            not (est_sous_attaque plateau.plateau newX newY (if player = Player1 then Player2 else Player1))
           with CoupImpossible _ -> false
-        else false
+        else
+          false
       ) mouvements_roi_possibles
     in
 
-    (* Vérifie s'il y a au moins une pièce adverse qui bloque le roi *)
-    let pieces_adverses_bloquent =
-      List.exists (fun (dx, dy) ->
-        let newX, newY = (x + dx, y + dy) in
-        (* Vérifie si la nouvelle position est dans les limites du plateau *)
-        if newX >= 0 && newX < 8 && newY >= 0 && newY < 8 then
-          est_sous_attaque plateau.plateau newX newY player
-        else false
-      ) mouvements_roi_possibles
-    in
-
-    (* Le roi est en échec et ne peut pas se déplacer à cause d'au moins une pièce adverse *)
-    not roi_peut_se_deplacer && pieces_adverses_bloquent
+    (* Si le roi ne peut pas se déplacer et est sous attaque, alors c'est un échec et mat *)
+    not roi_peut_se_deplacer
 
 
 (* Boucle principale du jeu *)
@@ -409,8 +391,7 @@ let rec boucle_jeu (plateau : plateau) (tour : player) =
     else
       boucle_jeu new_plateau prochain_tour
   with
-    | CoupImpossible (x, y) -> 
-      print_endline ("Coup impossible en (" ^ string_of_int x ^ ", " ^ string_of_int y ^ ")");
+    | CoupImpossible (x, y) -> print_endline ("Coup impossible en (" ^ string_of_int x ^ ", " ^ string_of_int y ^ ")");
       boucle_jeu plateau tour
 
 
@@ -420,8 +401,8 @@ let rec boucle_jeu (plateau : plateau) (tour : player) =
 
 (* Démarrage du jeu *)
 let lancer_jeu () =
-  let plateau_initial = init () in
-  boucle_jeu plateau_initial Player1
+  let plateau_init = init () in
+  boucle_jeu plateau_init Player1
 
 
 (*
